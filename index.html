@@ -311,6 +311,7 @@ let settings = { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('sns_se
 let twitchToken = null;
 let sortKey = null;
 let sortAsc = true;
+let isFetching = false;
 function fmtBase(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
@@ -379,12 +380,12 @@ async function savePlayers() {
   if (!url) return;
   setSyncStatus('syncing', '保存中...');
   try {
-    await fetch(`${url}?action=clearAll&t=${Date.now()}`, { cache: 'no-cache' });
+    await fetch(`${url}?action=clearAll&t=${Date.now()}`, { cache: 'no-cache', mode: 'no-cors' });
     const BATCH = 5;
     for (let i = 0; i < players.length; i += BATCH) {
       const batch = players.slice(i, i + BATCH);
       const data = encodeURIComponent(JSON.stringify(batch));
-      await fetch(`${url}?action=addBatch&data=${data}&t=${Date.now()}`, { cache: 'no-cache' });
+      await fetch(`${url}?action=addBatch&data=${data}&t=${Date.now()}`, { cache: 'no-cache', mode: 'no-cors' });
     }
     // シート再読み込みしない（重複データが戻ってくるのを防ぐ）
     setSyncStatus('ok', `Google Sheetsと同期済み（${players.length}名）`);
@@ -636,10 +637,12 @@ async function fetchTwitch(username) {
   } catch(e) { return null; }
 }
 async function fetchAllData() {
+  if (isFetching) return;
   if (!settings.ytApiKey && !settings.twitchClientId) {
     if (confirm('APIキーが設定されていません。設定画面を開きますか？')) openSettings();
     return;
   }
+  isFetching = true;
   const prog = document.getElementById('fetchProgress');
   const label = document.getElementById('fetchLabel');
   const bar   = document.getElementById('progressBar');
@@ -657,11 +660,6 @@ async function fetchAllData() {
     done++;
     bar.style.width = ((done/total)*100) + '%';
   }
-  // デバッグ: 取得結果を確認
-  console.log('=== SNS取得完了 ===');
-  console.log('選手数:', players.length);
-  players.forEach(p => console.log(p.name, '| YT登録者:', p.ytSubscribers, '| Twitch:', p.twitchFollowers));
-
   label.textContent = '保存中...';
   await savePlayers();
   prog.style.display = 'none';
@@ -669,7 +667,7 @@ async function fetchAllData() {
   const now = new Date();
   document.getElementById('lastFetchMsg').textContent = `最終更新: ${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-  console.log('=== renderTable呼び出し ===');
+  isFetching = false;
   renderTable();
 }
 
