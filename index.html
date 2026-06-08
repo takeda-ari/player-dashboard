@@ -654,12 +654,19 @@ async function fetchAllData() {
     done++;
     bar.style.width = ((done/total)*100) + '%';
   }
+  // デバッグ: 取得結果を確認
+  console.log('=== SNS取得完了 ===');
+  console.log('選手数:', players.length);
+  players.forEach(p => console.log(p.name, '| YT登録者:', p.ytSubscribers, '| Twitch:', p.twitchFollowers));
+
   label.textContent = '保存中...';
   await savePlayers();
   prog.style.display = 'none';
   document.getElementById('fetchBtn').disabled = false;
   const now = new Date();
   document.getElementById('lastFetchMsg').textContent = `最終更新: ${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  console.log('=== renderTable呼び出し ===');
   renderTable();
 }
 
