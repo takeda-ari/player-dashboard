@@ -1,0 +1,83 @@
+const SHEET_NAME = 'Players';
+const HEADERS = [
+  'id', 'name', 'game',
+  'xHandle', 'xFollowers',
+  'ytChannel', 'ytSubscribers', 'ytViews', 'ytVideos',
+  'twitchName', 'twitchFollowers', 'twitchViews',
+  'lastUpdated'
+];
+
+function getSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow(HEADERS);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, HEADERS.length)
+      .setBackground('#1a1a2e')
+      .setFontColor('#ffffff')
+      .setFontWeight('bold');
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  try {
+    const sheet = getSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return respond([]);
+    const players = data.slice(1)
+      .map(row => {
+        const obj = {};
+        HEADERS.forEach((h, i) => {
+          const val = row[i];
+          obj[h] = (val === '' || val === null || val === undefined) ? null : String(val);
+        });
+        return obj;
+      })
+      .filter(p => p.id && p.id !== 'null');
+    return respond(players);
+  } catch (err) {
+    return respond({ error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    let dataStr = null;
+    if (e.parameter && e.parameter.data) {
+      dataStr = e.parameter.data;
+    } else if (e.postData && e.postData.contents) {
+      const pairs = e.postData.contents.split('&');
+      for (const pair of pairs) {
+        const idx = pair.indexOf('=');
+        if (idx > -1) {
+          const key = decodeURIComponent(pair.substring(0, idx));
+          const val = decodeURIComponent(pair.substring(idx + 1).replace(/\+/g, ' '));
+          if (key === 'data') { dataStr = val; break; }
+        }
+      }
+    }
+    if (!dataStr) return respond({ error: 'データが見つかりません' });
+    const players = JSON.parse(dataStr);
+    const sheet = getSheet();
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) sheet.deleteRows(2, lastRow - 1);
+    if (players.length > 0) {
+      const rows = players.map(p =>
+        HEADERS.map(h => (p[h] !== null && p[h] !== undefined) ? p[h] : '')
+      );
+      sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
+    }
+    return respond({ success: true, count: players.length });
+  } catch (err) {
+    return respond({ error: err.toString() });
+  }
+}
+
+function respond(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
