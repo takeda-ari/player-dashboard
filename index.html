@@ -391,7 +391,6 @@ async function savePlayers() {
 async function syncNow() {
   showLoading('同期中...');
   await loadPlayers();
-  await savePlayers(); // シートの重複をクリーンアップして書き直す
   renderTable();
   hideLoading();
 }
