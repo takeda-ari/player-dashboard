@@ -113,12 +113,16 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   #emptyState { text-align: center; padding: 40px; color: #aaa; display: none; }
   .sort-indicator { font-size: 10px; margin-left: 4px; }
-  .platform-link { display: inline-flex; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; transition: opacity 0.15s; margin-left: 4px; }
+  .platform-link { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 11px; font-weight: 700; width: 22px; height: 22px; border-radius: 4px; transition: opacity 0.15s; }
   .platform-link:hover { opacity: 0.75; }
   .link-x   { background: #000; color: #fff; }
   .link-yt  { background: #ff0000; color: #fff; }
   .link-tw  { background: #9146ff; color: #fff; }
-  .cell-with-link { display: flex; align-items: center; gap: 4px; }
+  .link-none { width: 22px; display: inline-block; }
+  .links-cell { display: flex; align-items: center; gap: 3px; }
+  /* 操作ボタンはホバー時のみ表示 */
+  .action-cell { opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
+  tbody tr:hover .action-cell { opacity: 1; }
 </style>
 </head>
 <body>
@@ -209,6 +213,7 @@
           <th onclick="sortBy('ytViews')"><span class="tag-yt">▶</span> 総再生数 <span class="sort-indicator" id="sort-ytViews"></span></th>
           <th onclick="sortBy('ytVideos')"><span class="tag-yt">▶</span> 動画数 <span class="sort-indicator" id="sort-ytVideos"></span></th>
           <th onclick="sortBy('twitchFollowers')"><span class="tag-tw">◆</span> フォロワー <span class="sort-indicator" id="sort-twitchFollowers"></span></th>
+          <th>🔗 リンク</th>
           <th>最終更新</th>
           <th>操作</th>
         </tr>
@@ -498,19 +503,20 @@ function renderTable() {
   } else {
     empty.style.display = 'none';
     tbody.innerHTML = filtered.map((p, i) => {
-      const xLink  = p.xHandle && p.xHandle !== 'null'     ? `<a href="https://x.com/${p.xHandle}" target="_blank" class="platform-link link-x">𝕏</a>` : '';
-      const ytLink = p.ytChannel && p.ytChannel !== 'null' ? `<a href="https://www.youtube.com/channel/${p.ytChannel}" target="_blank" class="platform-link link-yt">▶</a>` : '';
-      const twLink = p.twitchName && p.twitchName !== 'null' ? `<a href="https://www.twitch.tv/${p.twitchName}" target="_blank" class="platform-link link-tw">◆</a>` : '';
+      const xLink  = p.xHandle && p.xHandle !== 'null'       ? `<a href="https://x.com/${p.xHandle}" target="_blank" class="platform-link link-x">𝕏</a>` : `<span class="link-none"></span>`;
+      const ytLink = p.ytChannel && p.ytChannel !== 'null'   ? `<a href="https://www.youtube.com/channel/${p.ytChannel}" target="_blank" class="platform-link link-yt">▶</a>` : `<span class="link-none"></span>`;
+      const twLink = p.twitchName && p.twitchName !== 'null' ? `<a href="https://www.twitch.tv/${p.twitchName}" target="_blank" class="platform-link link-tw">◆</a>` : `<span class="link-none"></span>`;
       return `<tr>
         <td><strong>${i+1}. ${p.name}</strong></td>
         <td>${p.game && p.game !== 'null' ? `<span class="game-badge">${p.game}</span>` : '<span class="na">—</span>'}</td>
-        <td><div class="cell-with-link"><span class="num">${fmt(p.xFollowers)}</span>${xLink}</div></td>
-        <td><div class="cell-with-link"><span class="num">${fmt(p.ytSubscribers)}</span>${ytLink}</div></td>
+        <td class="num">${fmt(p.xFollowers)}</td>
+        <td class="num">${fmt(p.ytSubscribers)}</td>
         <td class="num">${fmt(p.ytViews)}</td>
         <td class="num">${fmt(p.ytVideos)}</td>
-        <td><div class="cell-with-link"><span class="num">${fmt(p.twitchFollowers)}</span>${twLink}</div></td>
+        <td class="num">${fmt(p.twitchFollowers)}</td>
+        <td><div class="links-cell">${xLink}${ytLink}${twLink}</div></td>
         <td>${fmtDate(p.lastUpdated)}</td>
-        <td>
+        <td class="action-cell">
           <button class="btn btn-primary btn-sm" onclick="openEditPlayer('${p.id}')">編集</button>
           <button class="btn btn-danger btn-sm" onclick="deletePlayer('${p.id}')">削除</button>
         </td>
@@ -720,10 +726,17 @@ async function importCSV() {
 }
 
 function exportCSV() {
-  const header = '選手名,ゲームタイトル,X_ユーザー名,X_フォロワー,YouTube_チャンネルID,YT_登録者数,YT_再生数,YT_動画数,Twitch_ユーザー名,Twitch_フォロワー,最終更新';
-  const rows = players.map(p => [p.name, p.game||'', p.xHandle||'', p.xFollowers||'', p.ytChannel||'', p.ytSubscribers||'', p.ytViews||'', p.ytVideos||'', p.twitchName||'', p.twitchFollowers||'', p.lastUpdated||''].join(','));
-  const csv = [header, ...rows].join('\n');
-  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const q = v => `"${String(v === null || v === undefined ? '' : v).replace(/"/g, '""')}"`;
+  const headers = ['選手名','ゲームタイトル','X_ユーザー名','X_フォロワー','YouTube_チャンネルID','YT_登録者数','YT_再生数','YT_動画数','Twitch_ユーザー名','Twitch_フォロワー','最終更新'];
+  const rows = players.map(p => [
+    p.name, p.game||'', p.xHandle||'', p.xFollowers||'',
+    p.ytChannel||'', p.ytSubscribers||'', p.ytViews||'', p.ytVideos||'',
+    p.twitchName||'', p.twitchFollowers||'', p.lastUpdated||''
+  ].map(q).join(','));
+  const csv = [headers.map(q).join(','), ...rows].join('\r\n');
+  // UTF-8 BOM をバイト列で付与（Excelで文字化けしない）
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const blob = new Blob([bom, csv], {type: 'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `sns_data_${new Date().toISOString().slice(0,10)}.csv`;
