@@ -340,24 +340,22 @@ let twitchToken = null;
 let sortKey = null;
 let sortAsc = true;
 
+function fmtBase(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
+  return num.toLocaleString();
+}
 function fmt(n) {
   if (n === null || n === undefined || n === '' || n === 'null') return '<span class="na">—</span>';
   const num = parseInt(n);
   if (isNaN(num)) return '<span class="na">—</span>';
-  if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
-  if (num >= 10000)   return (num/10000).toFixed(1) + '万';
-  if (num >= 1000)    return (num/1000).toFixed(1) + 'K';
-  return num.toLocaleString();
+  return fmtBase(num);
 }
-
 function fmtNum(n) {
   if (!n || n === 'null') return '—';
   const num = parseInt(n);
   if (isNaN(num) || num === 0) return '—';
-  if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
-  if (num >= 10000)   return (num/10000).toFixed(1) + '万';
-  if (num >= 1000)    return (num/1000).toFixed(1) + 'K';
-  return num.toLocaleString();
+  return fmtBase(num);
 }
 
 function fmtDate(iso) {
