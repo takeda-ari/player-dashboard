@@ -382,8 +382,8 @@ async function savePlayers() {
       const data = encodeURIComponent(JSON.stringify(batch));
       await fetch(`${url}?action=addBatch&data=${data}`, { cache: 'no-cache' });
     }
-    await loadPlayers();
-    renderTable();
+    // シート再読み込みしない（重複データが戻ってくるのを防ぐ）
+    setSyncStatus('ok', `Google Sheetsと同期済み（${players.length}名）`);
   } catch (e) {
     setSyncStatus('orange', '保存エラー（ローカルには保存済み）');
   }
