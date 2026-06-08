@@ -8,11 +8,9 @@
   :root { color-scheme: light; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f6fa; color: #222; font-size: 14px; }
-
   header { background: #1a1a2e; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   header h1 { font-size: 18px; font-weight: 700; }
   .header-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
   .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.15s; }
   .btn:hover { opacity: 0.85; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -23,16 +21,11 @@
   .btn-sm { padding: 4px 10px; font-size: 12px; }
   .btn-outline { background: transparent; border: 1.5px solid currentColor; }
   .btn-outline-white { background: transparent; border: 1.5px solid #fff; color: #fff; }
-
   .container { padding: 20px 24px; }
-
-  /* Overall stats */
   .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
   .stat-card { background: #fff; border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 120px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .stat-card .label { color: #888; font-size: 12px; margin-bottom: 4px; }
   .stat-card .value { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-
-  /* Game breakdown */
   .section-title { font-size: 13px; font-weight: 700; color: #555; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
   .section-title button { font-size: 11px; padding: 2px 8px; }
   .game-breakdown { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; }
@@ -51,12 +44,10 @@
   .game-table tfoot td { font-weight: 700; background: #f0f2f8; color: #1a1a2e; }
   .game-table tfoot td:first-child { text-align: left; }
   .total-col { font-weight: 700; color: #1a1a2e; }
-
   .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
   .toolbar input[type=text] { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; width: 200px; }
   .toolbar input[type=text]:focus { outline: none; border-color: #4f8ef7; }
   .toolbar select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; }
-
   .table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 16px; overflow-x: auto; }
   table#mainTable { width: 100%; border-collapse: collapse; }
   thead th { background: #f0f2f8; color: #555; font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 10px 12px; text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
@@ -69,9 +60,7 @@
   .tag-x { color: #000; }
   .tag-yt { color: #ff0000; }
   .tag-tw { color: #9146ff; }
-
   .game-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #e8f0fe; color: #3b5bdb; }
-
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
   .modal { background: #fff; border-radius: 12px; padding: 28px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
@@ -90,7 +79,6 @@
   .form-row { display: flex; gap: 10px; }
   .form-row .form-group { flex: 1; }
   .note { background: #e8f4fd; border-left: 3px solid #4f8ef7; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 12px; color: #555; margin-bottom: 12px; line-height: 1.6; }
-
   .sync-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #fff; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 12px; }
   .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .sync-dot.green { background: #27ae60; }
@@ -98,15 +86,12 @@
   .sync-dot.gray { background: #aaa; }
   .sync-dot.pulse { animation: pulse 1.5s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
   .progress-wrap { background: #f0f2f8; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: none; }
   .progress-label { font-size: 12px; color: #555; margin-bottom: 6px; }
   .progress-bar-bg { background: #ddd; border-radius: 10px; height: 6px; overflow: hidden; }
   .progress-bar { background: #4f8ef7; height: 100%; width: 0; transition: width 0.3s; border-radius: 10px; }
-
   .csv-area { width: 100%; height: 110px; font-size: 11px; font-family: monospace; border: 1.5px solid #ddd; border-radius: 6px; padding: 8px; resize: vertical; }
   .last-updated { font-size: 11px; color: #aaa; }
-
   #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 2000; align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 15px; color: #555; }
   #loadingOverlay.show { display: flex; }
   .spinner { width: 36px; height: 36px; border: 3px solid #ddd; border-top-color: #4f8ef7; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -120,18 +105,15 @@
   .link-tw  { background: #9146ff; color: #fff; }
   .link-none { width: 22px; display: inline-block; }
   .links-cell { display: flex; align-items: center; gap: 3px; }
-  /* 操作ボタンはホバー時のみ表示 */
   .action-cell { opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
   tbody tr:hover .action-cell { opacity: 1; }
 </style>
 </head>
 <body>
-
 <div id="loadingOverlay">
   <div class="spinner"></div>
   <span id="loadingMsg">データを読み込み中...</span>
 </div>
-
 <header>
   <h1>⚡ 選手SNS管理ダッシュボード</h1>
   <div class="header-right">
@@ -140,16 +122,12 @@
     <button class="btn btn-success" id="fetchBtn" onclick="fetchAllData()">🔄 SNSデータ更新</button>
   </div>
 </header>
-
 <div class="container">
-
   <div class="sync-bar">
     <div class="sync-dot gray" id="syncDot"></div>
     <span id="syncLabel">設定画面でApps Script URLを入力するとデータが共有されます</span>
     <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="syncNow()">↺ 同期</button>
   </div>
-
-  <!-- Overall stats -->
   <div class="stats-bar">
     <div class="stat-card"><div class="label">登録選手数</div><div class="value" id="statPlayers">0</div></div>
     <div class="stat-card"><div class="label"><span class="tag-x">𝕏</span> 総フォロワー</div><div class="value" id="statXFollow">—</div></div>
@@ -158,8 +136,6 @@
     <div class="stat-card"><div class="label"><span class="tag-tw">◆</span> 総フォロワー</div><div class="value" id="statTwFollow">—</div></div>
     <div class="stat-card"><div class="label">👥 全SNS合計</div><div class="value" id="statTotal">—</div></div>
   </div>
-
-  <!-- Game breakdown -->
   <div class="game-breakdown">
     <div class="game-breakdown-header" onclick="toggleBreakdown()">
       <h3>🎮 ゲームタイトル別 合計</h3>
@@ -183,8 +159,6 @@
       </table>
     </div>
   </div>
-
-  <!-- Toolbar -->
   <div class="toolbar">
     <input type="text" id="searchInput" placeholder="🔍 選手名・アカウントで検索..." oninput="renderTable()">
     <select id="gameFilter" onchange="renderTable()">
@@ -194,14 +168,10 @@
     <button class="btn btn-secondary" onclick="openImport()">📥 CSVインポート</button>
     <button class="btn btn-outline btn-secondary" onclick="exportCSV()">📤 CSVエクスポート</button>
   </div>
-
-  <!-- Fetch progress -->
   <div class="progress-wrap" id="fetchProgress">
     <div class="progress-label" id="fetchLabel">取得中...</div>
     <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
   </div>
-
-  <!-- Table -->
   <div class="table-wrap">
     <table id="mainTable">
       <thead>
@@ -223,7 +193,6 @@
     <div id="emptyState">選手が登録されていません。「＋ 選手を追加」から始めましょう。</div>
   </div>
 </div>
-
 <!-- Settings Modal -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal">
@@ -260,7 +229,6 @@
     </div>
   </div>
 </div>
-
 <!-- Add/Edit Player Modal -->
 <div class="modal-overlay" id="playerModal">
   <div class="modal">
@@ -313,7 +281,6 @@
     </div>
   </div>
 </div>
-
 <!-- Import Modal -->
 <div class="modal-overlay" id="importModal">
   <div class="modal">
@@ -332,7 +299,6 @@
     </div>
   </div>
 </div>
-
 <script>
 let players = [];
 const DEFAULT_SETTINGS = {
@@ -345,7 +311,6 @@ let settings = { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('sns_se
 let twitchToken = null;
 let sortKey = null;
 let sortAsc = true;
-
 function fmtBase(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
@@ -363,14 +328,12 @@ function fmtNum(n) {
   if (isNaN(num) || num === 0) return '—';
   return fmtBase(num);
 }
-
 function fmtDate(iso) {
   if (!iso || iso === 'null') return '<span class="na">—</span>';
   const d = new Date(iso);
   if (isNaN(d)) return '<span class="na">—</span>';
   return `<span class="last-updated">${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}</span>`;
 }
-
 function numVal(n) { return (!n || n === 'null') ? -1 : (parseInt(n) || -1); }
 function numSum(arr, key) { return arr.reduce((s,p) => s + (parseInt(p[key])||0), 0); }
 
@@ -380,7 +343,6 @@ function setSyncStatus(status, label) {
   dot.className = 'sync-dot ' + (status === 'ok' ? 'green' : status === 'syncing' ? 'orange pulse' : 'gray');
   document.getElementById('syncLabel').textContent = label;
 }
-
 async function loadPlayers() {
   const url = settings.appsScriptUrl;
   if (!url) {
@@ -393,7 +355,13 @@ async function loadPlayers() {
     const res = await fetch(url, { cache: 'no-cache' });
     const data = await res.json();
     if (Array.isArray(data)) {
-      players = data;
+      // IDで重複排除
+      const seen = new Set();
+      players = data.filter(p => {
+        if (!p.id || seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+      });
       setSyncStatus('ok', `Google Sheetsと同期済み（${players.length}名）`);
     } else { throw new Error(data.error || '不明なエラー'); }
   } catch (e) {
@@ -401,35 +369,29 @@ async function loadPlayers() {
     setSyncStatus('orange', 'Sheets接続エラー。ローカルデータを表示中。');
   }
 }
-
 async function savePlayers() {
   localStorage.setItem('sns_players_local', JSON.stringify(players));
   const url = settings.appsScriptUrl;
   if (!url) return;
   setSyncStatus('syncing', '保存中...');
   try {
-    // 1. 全行削除
     await fetch(`${url}?action=clearAll`, { cache: 'no-cache' });
-
-    // 2. 5件ずつバッチでGET送信（POSTのCORS問題を回避）
     const BATCH = 5;
     for (let i = 0; i < players.length; i += BATCH) {
       const batch = players.slice(i, i + BATCH);
       const data = encodeURIComponent(JSON.stringify(batch));
       await fetch(`${url}?action=addBatch&data=${data}`, { cache: 'no-cache' });
     }
-
-    // 3. 再読み込みして表示更新
     await loadPlayers();
     renderTable();
   } catch (e) {
     setSyncStatus('orange', '保存エラー（ローカルには保存済み）');
   }
 }
-
 async function syncNow() {
   showLoading('同期中...');
   await loadPlayers();
+  await savePlayers(); // シートの重複をクリーンアップして書き直す
   renderTable();
   hideLoading();
 }
@@ -441,14 +403,11 @@ function toggleBreakdown() {
   body.classList.toggle('open');
   arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
 }
-
 function renderBreakdown() {
   const games = [...new Set(players.map(p => p.game || 'その他').filter(g => g !== 'null'))].sort();
   const tbody = document.getElementById('breakdownTableBody');
   const tfoot = document.getElementById('breakdownTableFoot');
-
   let totalX = 0, totalYTS = 0, totalYTV = 0, totalTW = 0, totalAll = 0, totalCount = 0;
-
   tbody.innerHTML = games.map(game => {
     const group = players.filter(p => (p.game || 'その他') === game);
     const xF  = numSum(group, 'xFollowers');
@@ -467,7 +426,6 @@ function renderBreakdown() {
       <td class="total-col">${fmtNum(tot)||'—'}</td>
     </tr>`;
   }).join('');
-
   tfoot.innerHTML = `<tr>
     <td>合計</td>
     <td>${totalCount}名</td>
@@ -488,7 +446,6 @@ function updateGameFilter() {
   const dl = document.getElementById('gameList');
   dl.innerHTML = games.map(g => `<option value="${g}">`).join('');
 }
-
 function renderTable() {
   updateGameFilter();
   renderBreakdown();
@@ -537,7 +494,6 @@ function renderTable() {
   }
   updateStats(filtered);
 }
-
 function sortBy(key) {
   if (sortKey === key) { sortAsc = !sortAsc; }
   else { sortKey = key; sortAsc = (key === 'name' || key === 'game'); }
@@ -546,7 +502,6 @@ function sortBy(key) {
   if (el) el.textContent = sortAsc ? '▲' : '▼';
   renderTable();
 }
-
 function updateStats(list) {
   document.getElementById('statPlayers').textContent = players.length;
   const xF   = numSum(list, 'xFollowers');
@@ -568,7 +523,6 @@ function openSettings() {
   document.getElementById('twitchClientSecret').value = settings.twitchClientSecret || '';
   document.getElementById('settingsModal').classList.add('open');
 }
-
 async function saveSettings() {
   settings.appsScriptUrl      = document.getElementById('appsScriptUrl').value.trim();
   settings.ytApiKey           = document.getElementById('ytApiKey').value.trim();
@@ -587,7 +541,6 @@ async function saveSettings() {
 
 // ─── Player CRUD ──────────────────────────────────────────────
 function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,6); }
-
 function openAddPlayer() {
   document.getElementById('playerModalTitle').textContent = '選手を追加';
   document.getElementById('editPlayerId').value = '';
@@ -595,7 +548,6 @@ function openAddPlayer() {
   document.getElementById('pXFollowers').value = '';
   document.getElementById('playerModal').classList.add('open');
 }
-
 function openEditPlayer(id) {
   const p = players.find(x => x.id === id);
   if (!p) return;
@@ -609,7 +561,6 @@ function openEditPlayer(id) {
   document.getElementById('pTwitchName').value = p.twitchName || '';
   document.getElementById('playerModal').classList.add('open');
 }
-
 async function savePlayer() {
   const name = document.getElementById('pName').value.trim();
   if (!name) { alert('選手名は必須です。'); return; }
@@ -633,7 +584,6 @@ async function savePlayer() {
   await savePlayers();
   hideLoading();
 }
-
 async function deletePlayer(id) {
   if (!confirm('この選手を削除しますか？')) return;
   players = players.filter(p => p.id !== id);
@@ -654,7 +604,6 @@ async function getTwitchToken() {
     return twitchToken;
   } catch(e) { return null; }
 }
-
 async function fetchYouTube(channelId) {
   if (!settings.ytApiKey || !channelId || channelId === 'null') return null;
   try {
@@ -665,7 +614,6 @@ async function fetchYouTube(channelId) {
     return { ytSubscribers: s.subscriberCount, ytViews: s.viewCount, ytVideos: s.videoCount };
   } catch(e) { return null; }
 }
-
 async function fetchTwitch(username) {
   if (!username || username === 'null') return null;
   const token = await getTwitchToken();
@@ -684,7 +632,6 @@ async function fetchTwitch(username) {
     return { twitchFollowers: followData.total ?? null };
   } catch(e) { return null; }
 }
-
 async function fetchAllData() {
   if (!settings.ytApiKey && !settings.twitchClientId) {
     if (confirm('APIキーが設定されていません。設定画面を開きますか？')) openSettings();
@@ -718,7 +665,6 @@ async function fetchAllData() {
 
 // ─── CSV ──────────────────────────────────────────────────────
 function openImport() { document.getElementById('csvInput').value = ''; document.getElementById('importModal').classList.add('open'); }
-
 async function importCSV() {
   const lines = document.getElementById('csvInput').value.trim().split('\n');
   if (lines.length < 2) { alert('データが不足しています。'); return; }
@@ -736,7 +682,6 @@ async function importCSV() {
   hideLoading();
   alert(`${added}名の選手をインポートしました。`);
 }
-
 function exportCSV() {
   const q = v => `"${String(v === null || v === undefined ? '' : v).replace(/"/g, '""')}"`;
   const headers = ['選手名','ゲームタイトル','X_ユーザー名','X_フォロワー','YouTube_チャンネルID','YT_登録者数','YT_再生数','YT_動画数','Twitch_ユーザー名','Twitch_フォロワー','最終更新'];
@@ -746,7 +691,6 @@ function exportCSV() {
     p.twitchName||'', p.twitchFollowers||'', p.lastUpdated||''
   ].map(q).join(','));
   const csv = [headers.map(q).join(','), ...rows].join('\r\n');
-  // UTF-8 BOM をバイト列で付与（Excelで文字化けしない）
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
   const blob = new Blob([bom, csv], {type: 'text/csv;charset=utf-8'});
   const a = document.createElement('a');
@@ -760,7 +704,6 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 document.querySelectorAll('.modal-overlay').forEach(el => { el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); }); });
 function showLoading(msg) { document.getElementById('loadingMsg').textContent = msg||'処理中...'; document.getElementById('loadingOverlay').classList.add('show'); }
 function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
-
 (async () => {
   showLoading('データを読み込み中...');
   await loadPlayers();
