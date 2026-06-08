@@ -335,7 +335,13 @@
 
 <script>
 let players = [];
-let settings = JSON.parse(localStorage.getItem('sns_settings') || '{}');
+const DEFAULT_SETTINGS = {
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx4FU5BuTZ2uDBy2r9zIhjGZeh2-ukL696SCT5FDRn6rFJZb8JrM3CimyQNoRv5McPfvw/exec',
+  ytApiKey: '',
+  twitchClientId: '',
+  twitchClientSecret: ''
+};
+let settings = { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('sns_settings') || '{}') };
 let twitchToken = null;
 let sortKey = null;
 let sortAsc = true;
