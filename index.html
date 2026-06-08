@@ -336,7 +336,7 @@
 <script>
 let players = [];
 const DEFAULT_SETTINGS = {
-  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbw8wnqroHJjuDXUX70Tfqllcq1o_fTMz8eOM-3UaTrjsHixCakNvqHx95Uuix42orG5_w/exec',
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbz73B1qDAasmkmjE4uCH8JMILIaNIV8HTeeRRcZh0NuEYLSWcEmlc0e5b2C3X7Ln0SOOA/exec',
   ytApiKey: '',
   twitchClientId: '',
   twitchClientSecret: ''
@@ -408,10 +408,18 @@ async function savePlayers() {
   if (!url) return;
   setSyncStatus('syncing', '保存中...');
   try {
-    const body = new URLSearchParams();
-    body.append('data', JSON.stringify(players));
-    await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: body.toString() });
-    await new Promise(r => setTimeout(r, 1500));
+    // 1. 全行削除
+    await fetch(`${url}?action=clearAll`, { cache: 'no-cache' });
+
+    // 2. 5件ずつバッチでGET送信（POSTのCORS問題を回避）
+    const BATCH = 5;
+    for (let i = 0; i < players.length; i += BATCH) {
+      const batch = players.slice(i, i + BATCH);
+      const data = encodeURIComponent(JSON.stringify(batch));
+      await fetch(`${url}?action=addBatch&data=${data}`, { cache: 'no-cache' });
+    }
+
+    // 3. 再読み込みして表示更新
     await loadPlayers();
     renderTable();
   } catch (e) {
