@@ -26,10 +26,31 @@
 
   .container { padding: 20px 24px; }
 
-  .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-  .stat-card { background: #fff; border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 130px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  /* Overall stats */
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-card { background: #fff; border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 120px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .stat-card .label { color: #888; font-size: 12px; margin-bottom: 4px; }
   .stat-card .value { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+
+  /* Game breakdown */
+  .section-title { font-size: 13px; font-weight: 700; color: #555; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-title button { font-size: 11px; padding: 2px 8px; }
+  .game-breakdown { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; }
+  .game-breakdown-header { padding: 14px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+  .game-breakdown-header:hover { background: #f7f9ff; }
+  .game-breakdown-header h3 { font-size: 13px; font-weight: 700; color: #555; }
+  .game-breakdown-body { display: none; overflow-x: auto; }
+  .game-breakdown-body.open { display: block; }
+  .game-table { width: 100%; border-collapse: collapse; }
+  .game-table th { background: #f0f2f8; color: #555; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 8px 14px; text-align: right; white-space: nowrap; }
+  .game-table th:first-child { text-align: left; }
+  .game-table td { padding: 9px 14px; border-bottom: 1px solid #f0f2f8; text-align: right; font-size: 13px; }
+  .game-table td:first-child { text-align: left; font-weight: 600; }
+  .game-table tr:last-child td { border-bottom: none; }
+  .game-table tr:hover td { background: #f7f9ff; }
+  .game-table tfoot td { font-weight: 700; background: #f0f2f8; color: #1a1a2e; }
+  .game-table tfoot td:first-child { text-align: left; }
+  .total-col { font-weight: 700; color: #1a1a2e; }
 
   .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
   .toolbar input[type=text] { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; width: 200px; }
@@ -37,7 +58,7 @@
   .toolbar select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; }
 
   .table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 16px; overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
+  table#mainTable { width: 100%; border-collapse: collapse; }
   thead th { background: #f0f2f8; color: #555; font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 10px 12px; text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
   thead th:hover { background: #e4e8f4; }
   tbody tr { border-bottom: 1px solid #f0f2f8; transition: background 0.1s; }
@@ -58,13 +79,13 @@
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
   .form-group input, .form-group select { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; }
-  .form-group input:focus, .form-group select:focus { outline: none; border-color: #4f8ef7; }
+  .form-group input:focus { outline: none; border-color: #4f8ef7; }
   .form-section { background: #f8f9fa; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
   .form-section-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-section-title.blue { color: #4f8ef7; }
   .form-section-title.tag-x { color: #333; }
   .form-section-title.tag-yt { color: #cc0000; }
   .form-section-title.tag-tw { color: #9146ff; }
-  .form-section-title.blue { color: #4f8ef7; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
   .form-row { display: flex; gap: 10px; }
   .form-row .form-group { flex: 1; }
@@ -90,9 +111,14 @@
   #loadingOverlay.show { display: flex; }
   .spinner { width: 36px; height: 36px; border: 3px solid #ddd; border-top-color: #4f8ef7; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   #emptyState { text-align: center; padding: 40px; color: #aaa; display: none; }
   .sort-indicator { font-size: 10px; margin-left: 4px; }
+  .platform-link { display: inline-flex; align-items: center; gap: 3px; text-decoration: none; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; transition: opacity 0.15s; margin-left: 4px; }
+  .platform-link:hover { opacity: 0.75; }
+  .link-x   { background: #000; color: #fff; }
+  .link-yt  { background: #ff0000; color: #fff; }
+  .link-tw  { background: #9146ff; color: #fff; }
+  .cell-with-link { display: flex; align-items: center; gap: 4px; }
 </style>
 </head>
 <body>
@@ -119,15 +145,42 @@
     <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="syncNow()">↺ 同期</button>
   </div>
 
+  <!-- Overall stats -->
   <div class="stats-bar">
     <div class="stat-card"><div class="label">登録選手数</div><div class="value" id="statPlayers">0</div></div>
+    <div class="stat-card"><div class="label"><span class="tag-x">𝕏</span> 総フォロワー</div><div class="value" id="statXFollow">—</div></div>
     <div class="stat-card"><div class="label"><span class="tag-yt">▶</span> 総登録者数</div><div class="value" id="statYTSubs">—</div></div>
     <div class="stat-card"><div class="label"><span class="tag-yt">▶</span> 総再生数</div><div class="value" id="statYTViews">—</div></div>
     <div class="stat-card"><div class="label"><span class="tag-tw">◆</span> 総フォロワー</div><div class="value" id="statTwFollow">—</div></div>
-    <div class="stat-card"><div class="label"><span class="tag-tw">◆</span> 総視聴数</div><div class="value" id="statTwViews">—</div></div>
-    <div class="stat-card"><div class="label"><span class="tag-x">𝕏</span> 総フォロワー</div><div class="value" id="statXFollow">—</div></div>
+    <div class="stat-card"><div class="label">👥 全SNS合計</div><div class="value" id="statTotal">—</div></div>
   </div>
 
+  <!-- Game breakdown -->
+  <div class="game-breakdown">
+    <div class="game-breakdown-header" onclick="toggleBreakdown()">
+      <h3>🎮 ゲームタイトル別 合計</h3>
+      <span id="breakdownArrow">▼</span>
+    </div>
+    <div class="game-breakdown-body" id="breakdownBody">
+      <table class="game-table">
+        <thead>
+          <tr>
+            <th>ゲーム</th>
+            <th>人数</th>
+            <th><span class="tag-x">𝕏</span> フォロワー</th>
+            <th><span class="tag-yt">▶</span> 登録者数</th>
+            <th><span class="tag-yt">▶</span> 再生数</th>
+            <th><span class="tag-tw">◆</span> フォロワー</th>
+            <th>合計</th>
+          </tr>
+        </thead>
+        <tbody id="breakdownTableBody"></tbody>
+        <tfoot id="breakdownTableFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
   <div class="toolbar">
     <input type="text" id="searchInput" placeholder="🔍 選手名・アカウントで検索..." oninput="renderTable()">
     <select id="gameFilter" onchange="renderTable()">
@@ -138,11 +191,13 @@
     <button class="btn btn-outline btn-secondary" onclick="exportCSV()">📤 CSVエクスポート</button>
   </div>
 
+  <!-- Fetch progress -->
   <div class="progress-wrap" id="fetchProgress">
     <div class="progress-label" id="fetchLabel">取得中...</div>
     <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
   </div>
 
+  <!-- Table -->
   <div class="table-wrap">
     <table id="mainTable">
       <thead>
@@ -154,7 +209,6 @@
           <th onclick="sortBy('ytViews')"><span class="tag-yt">▶</span> 総再生数 <span class="sort-indicator" id="sort-ytViews"></span></th>
           <th onclick="sortBy('ytVideos')"><span class="tag-yt">▶</span> 動画数 <span class="sort-indicator" id="sort-ytVideos"></span></th>
           <th onclick="sortBy('twitchFollowers')"><span class="tag-tw">◆</span> フォロワー <span class="sort-indicator" id="sort-twitchFollowers"></span></th>
-          <th onclick="sortBy('twitchViews')"><span class="tag-tw">◆</span> 総視聴数 <span class="sort-indicator" id="sort-twitchViews"></span></th>
           <th>最終更新</th>
           <th>操作</th>
         </tr>
@@ -207,7 +261,6 @@
   <div class="modal">
     <h2 id="playerModalTitle">選手を追加</h2>
     <input type="hidden" id="editPlayerId">
-
     <div class="form-row">
       <div class="form-group">
         <label>選手名 *</label>
@@ -219,7 +272,6 @@
         <datalist id="gameList"></datalist>
       </div>
     </div>
-
     <div class="form-section">
       <div class="form-section-title tag-x">𝕏 X（手動入力）</div>
       <div class="form-row">
@@ -233,7 +285,6 @@
         </div>
       </div>
     </div>
-
     <div class="form-section">
       <div class="form-section-title tag-yt">▶ YouTube</div>
       <div class="form-group">
@@ -244,7 +295,6 @@
         URLが youtube.com/@名前 の場合: チャンネルページ右クリック→「ページのソースを表示」→ Ctrl+F で "channelId" を検索
       </div>
     </div>
-
     <div class="form-section">
       <div class="form-section-title tag-tw">◆ Twitch</div>
       <div class="form-group">
@@ -252,7 +302,6 @@
         <input type="text" id="pTwitchName" placeholder="yamada_taro">
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('playerModal')">キャンセル</button>
       <button class="btn btn-primary" onclick="savePlayer()">保存</button>
@@ -270,8 +319,7 @@
     </div>
     <div class="form-group">
       <textarea class="csv-area" id="csvInput" placeholder="選手名,ゲームタイトル,X_ユーザー名,YouTubeチャンネルID,Twitchユーザー名
-山田太郎,Valorant,yamada_taro,UCxxxxxxxxx,yamada_taro
-鈴木花子,LoL,suzuki_hanako,UCyyyyyyyyy,"></textarea>
+山田太郎,Valorant,yamada_taro,UCxxxxxxxxx,yamada_taro"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('importModal')">キャンセル</button>
@@ -281,18 +329,26 @@
 </div>
 
 <script>
-// ─── State ────────────────────────────────────────────────────
 let players = [];
 let settings = JSON.parse(localStorage.getItem('sns_settings') || '{}');
 let twitchToken = null;
 let sortKey = null;
 let sortAsc = true;
 
-// ─── Formatting ───────────────────────────────────────────────
 function fmt(n) {
   if (n === null || n === undefined || n === '' || n === 'null') return '<span class="na">—</span>';
   const num = parseInt(n);
   if (isNaN(num)) return '<span class="na">—</span>';
+  if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
+  if (num >= 10000)   return (num/10000).toFixed(1) + '万';
+  if (num >= 1000)    return (num/1000).toFixed(1) + 'K';
+  return num.toLocaleString();
+}
+
+function fmtNum(n) {
+  if (!n || n === 'null') return '—';
+  const num = parseInt(n);
+  if (isNaN(num) || num === 0) return '—';
   if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
   if (num >= 10000)   return (num/10000).toFixed(1) + '万';
   if (num >= 1000)    return (num/1000).toFixed(1) + 'K';
@@ -307,8 +363,9 @@ function fmtDate(iso) {
 }
 
 function numVal(n) { return (!n || n === 'null') ? -1 : (parseInt(n) || -1); }
+function numSum(arr, key) { return arr.reduce((s,p) => s + (parseInt(p[key])||0), 0); }
 
-// ─── Sync ─────────────────────────────────────────────────────
+// ─── Sync ────────────────────────────────────────────────────
 function setSyncStatus(status, label) {
   const dot = document.getElementById('syncDot');
   dot.className = 'sync-dot ' + (status === 'ok' ? 'green' : status === 'syncing' ? 'orange pulse' : 'gray');
@@ -360,66 +417,106 @@ async function syncNow() {
   hideLoading();
 }
 
-// ─── Game filter ──────────────────────────────────────────────
+// ─── Game Breakdown ──────────────────────────────────────────
+function toggleBreakdown() {
+  const body = document.getElementById('breakdownBody');
+  const arrow = document.getElementById('breakdownArrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function renderBreakdown() {
+  const games = [...new Set(players.map(p => p.game || 'その他').filter(g => g !== 'null'))].sort();
+  const tbody = document.getElementById('breakdownTableBody');
+  const tfoot = document.getElementById('breakdownTableFoot');
+
+  let totalX = 0, totalYTS = 0, totalYTV = 0, totalTW = 0, totalAll = 0, totalCount = 0;
+
+  tbody.innerHTML = games.map(game => {
+    const group = players.filter(p => (p.game || 'その他') === game);
+    const xF  = numSum(group, 'xFollowers');
+    const ytS = numSum(group, 'ytSubscribers');
+    const ytV = numSum(group, 'ytViews');
+    const twF = numSum(group, 'twitchFollowers');
+    const tot = xF + ytS + twF;
+    totalX += xF; totalYTS += ytS; totalYTV += ytV; totalTW += twF; totalAll += tot; totalCount += group.length;
+    return `<tr>
+      <td><span class="game-badge">${game}</span></td>
+      <td>${group.length}名</td>
+      <td>${fmtNum(xF)||'—'}</td>
+      <td>${fmtNum(ytS)||'—'}</td>
+      <td>${fmtNum(ytV)||'—'}</td>
+      <td>${fmtNum(twF)||'—'}</td>
+      <td class="total-col">${fmtNum(tot)||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  tfoot.innerHTML = `<tr>
+    <td>合計</td>
+    <td>${totalCount}名</td>
+    <td>${fmtNum(totalX)||'—'}</td>
+    <td>${fmtNum(totalYTS)||'—'}</td>
+    <td>${fmtNum(totalYTV)||'—'}</td>
+    <td>${fmtNum(totalTW)||'—'}</td>
+    <td class="total-col">${fmtNum(totalAll)||'—'}</td>
+  </tr>`;
+}
+
+// ─── Table ────────────────────────────────────────────────────
 function updateGameFilter() {
   const games = [...new Set(players.map(p => p.game).filter(g => g && g !== 'null'))].sort();
   const sel = document.getElementById('gameFilter');
   const cur = sel.value;
   sel.innerHTML = '<option value="">🎮 全ゲーム</option>' + games.map(g => `<option value="${g}"${g===cur?' selected':''}>${g}</option>`).join('');
-
   const dl = document.getElementById('gameList');
   dl.innerHTML = games.map(g => `<option value="${g}">`).join('');
 }
 
-// ─── Table Render ─────────────────────────────────────────────
 function renderTable() {
   updateGameFilter();
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  renderBreakdown();
+  const q  = document.getElementById('searchInput').value.toLowerCase();
   const gf = document.getElementById('gameFilter').value;
-
   let filtered = players.filter(p => {
     const matchQ = (p.name||'').toLowerCase().includes(q) || (p.xHandle||'').toLowerCase().includes(q) || (p.twitchName||'').toLowerCase().includes(q);
     const matchG = !gf || p.game === gf;
     return matchQ && matchG;
   });
-
   if (sortKey) {
     filtered.sort((a, b) => {
-      const av = sortKey === 'name' || sortKey === 'game' ? (a[sortKey]||'') : numVal(a[sortKey]);
-      const bv = sortKey === 'name' || sortKey === 'game' ? (b[sortKey]||'') : numVal(b[sortKey]);
+      const av = (sortKey === 'name' || sortKey === 'game') ? (a[sortKey]||'') : numVal(a[sortKey]);
+      const bv = (sortKey === 'name' || sortKey === 'game') ? (b[sortKey]||'') : numVal(b[sortKey]);
       if (av < bv) return sortAsc ? -1 : 1;
       if (av > bv) return sortAsc ? 1 : -1;
       return 0;
     });
   }
-
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
-
   if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
+    tbody.innerHTML = ''; empty.style.display = 'block';
   } else {
     empty.style.display = 'none';
-    tbody.innerHTML = filtered.map((p, i) => `
-      <tr>
+    tbody.innerHTML = filtered.map((p, i) => {
+      const xLink  = p.xHandle && p.xHandle !== 'null'     ? `<a href="https://x.com/${p.xHandle}" target="_blank" class="platform-link link-x">𝕏</a>` : '';
+      const ytLink = p.ytChannel && p.ytChannel !== 'null' ? `<a href="https://www.youtube.com/channel/${p.ytChannel}" target="_blank" class="platform-link link-yt">▶</a>` : '';
+      const twLink = p.twitchName && p.twitchName !== 'null' ? `<a href="https://www.twitch.tv/${p.twitchName}" target="_blank" class="platform-link link-tw">◆</a>` : '';
+      return `<tr>
         <td><strong>${i+1}. ${p.name}</strong></td>
         <td>${p.game && p.game !== 'null' ? `<span class="game-badge">${p.game}</span>` : '<span class="na">—</span>'}</td>
-        <td class="num">${fmt(p.xFollowers)}</td>
-        <td class="num">${fmt(p.ytSubscribers)}</td>
+        <td><div class="cell-with-link"><span class="num">${fmt(p.xFollowers)}</span>${xLink}</div></td>
+        <td><div class="cell-with-link"><span class="num">${fmt(p.ytSubscribers)}</span>${ytLink}</div></td>
         <td class="num">${fmt(p.ytViews)}</td>
         <td class="num">${fmt(p.ytVideos)}</td>
-        <td class="num">${fmt(p.twitchFollowers)}</td>
-        <td class="num">${fmt(p.twitchViews)}</td>
+        <td><div class="cell-with-link"><span class="num">${fmt(p.twitchFollowers)}</span>${twLink}</div></td>
         <td>${fmtDate(p.lastUpdated)}</td>
         <td>
           <button class="btn btn-primary btn-sm" onclick="openEditPlayer('${p.id}')">編集</button>
           <button class="btn btn-danger btn-sm" onclick="deletePlayer('${p.id}')">削除</button>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   }
-
   updateStats(filtered);
 }
 
@@ -434,16 +531,15 @@ function sortBy(key) {
 
 function updateStats(list) {
   document.getElementById('statPlayers').textContent = players.length;
-  const ytSubs  = list.reduce((s,p)=>s+(parseInt(p.ytSubscribers)||0),0);
-  const ytViews = list.reduce((s,p)=>s+(parseInt(p.ytViews)||0),0);
-  const twF     = list.reduce((s,p)=>s+(parseInt(p.twitchFollowers)||0),0);
-  const twV     = list.reduce((s,p)=>s+(parseInt(p.twitchViews)||0),0);
-  const xF      = list.reduce((s,p)=>s+(parseInt(p.xFollowers)||0),0);
-  document.getElementById('statYTSubs').textContent   = ytSubs  ? fmt(ytSubs)  : '—';
-  document.getElementById('statYTViews').textContent  = ytViews ? fmt(ytViews) : '—';
-  document.getElementById('statTwFollow').textContent = twF     ? fmt(twF)     : '—';
-  document.getElementById('statTwViews').textContent  = twV     ? fmt(twV)     : '—';
-  document.getElementById('statXFollow').textContent  = xF      ? fmt(xF)      : '—';
+  const xF   = numSum(list, 'xFollowers');
+  const ytS  = numSum(list, 'ytSubscribers');
+  const ytV  = numSum(list, 'ytViews');
+  const twF  = numSum(list, 'twitchFollowers');
+  document.getElementById('statXFollow').textContent  = xF   ? fmtNum(xF)  : '—';
+  document.getElementById('statYTSubs').textContent   = ytS  ? fmtNum(ytS) : '—';
+  document.getElementById('statYTViews').textContent  = ytV  ? fmtNum(ytV) : '—';
+  document.getElementById('statTwFollow').textContent = twF  ? fmtNum(twF) : '—';
+  document.getElementById('statTotal').textContent    = (xF+ytS+twF) ? fmtNum(xF+ytS+twF) : '—';
 }
 
 // ─── Settings ─────────────────────────────────────────────────
@@ -499,28 +595,20 @@ function openEditPlayer(id) {
 async function savePlayer() {
   const name = document.getElementById('pName').value.trim();
   if (!name) { alert('選手名は必須です。'); return; }
-
   const editId = document.getElementById('editPlayerId').value;
   const data = {
-    name,
-    game:       document.getElementById('pGame').value.trim() || null,
-    xHandle:    document.getElementById('pXHandle').value.trim(),
+    name, game: document.getElementById('pGame').value.trim() || null,
+    xHandle: document.getElementById('pXHandle').value.trim(),
     xFollowers: document.getElementById('pXFollowers').value || null,
-    ytChannel:  document.getElementById('pYTChannel').value.trim(),
+    ytChannel: document.getElementById('pYTChannel').value.trim(),
     twitchName: document.getElementById('pTwitchName').value.trim(),
   };
-
   if (editId) {
     const idx = players.findIndex(p => p.id === editId);
     if (idx >= 0) players[idx] = { ...players[idx], ...data };
   } else {
-    players.push({
-      id: genId(), ...data,
-      ytSubscribers: null, ytViews: null, ytVideos: null,
-      twitchFollowers: null, twitchViews: null, lastUpdated: null
-    });
+    players.push({ id: genId(), ...data, ytSubscribers: null, ytViews: null, ytVideos: null, twitchFollowers: null, lastUpdated: null });
   }
-
   closeModal('playerModal');
   renderTable();
   showLoading('保存中...');
@@ -537,15 +625,12 @@ async function deletePlayer(id) {
   hideLoading();
 }
 
-// ─── SNS Data Fetch ───────────────────────────────────────────
+// ─── SNS Fetch ────────────────────────────────────────────────
 async function getTwitchToken() {
   if (twitchToken) return twitchToken;
   if (!settings.twitchClientId || !settings.twitchClientSecret) return null;
   try {
-    const res = await fetch(
-      `https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(settings.twitchClientId)}&client_secret=${encodeURIComponent(settings.twitchClientSecret)}&grant_type=client_credentials`,
-      { method: 'POST' }
-    );
+    const res = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(settings.twitchClientId)}&client_secret=${encodeURIComponent(settings.twitchClientSecret)}&grant_type=client_credentials`, { method: 'POST' });
     const data = await res.json();
     twitchToken = data.access_token;
     return twitchToken;
@@ -573,15 +658,12 @@ async function fetchTwitch(username) {
     });
     const userData = await userRes.json();
     if (!userData.data || !userData.data.length) return null;
-    const user = userData.data[0];
-    const userId = user.id;
-    const twitchViews = user.view_count ?? null; // 総視聴数
-
+    const userId = userData.data[0].id;
     const followRes = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${userId}`, {
       headers: { 'Client-Id': settings.twitchClientId, 'Authorization': `Bearer ${token}` }
     });
     const followData = await followRes.json();
-    return { twitchFollowers: followData.total ?? null, twitchViews };
+    return { twitchFollowers: followData.total ?? null };
   } catch(e) { return null; }
 }
 
@@ -595,10 +677,8 @@ async function fetchAllData() {
   const bar   = document.getElementById('progressBar');
   prog.style.display = 'block';
   document.getElementById('fetchBtn').disabled = true;
-
   const total = players.length;
   let done = 0;
-
   for (const p of players) {
     label.textContent = `取得中: ${p.name}（${done+1} / ${total}）`;
     bar.style.width = ((done/total)*100) + '%';
@@ -609,7 +689,6 @@ async function fetchAllData() {
     done++;
     bar.style.width = ((done/total)*100) + '%';
   }
-
   label.textContent = '保存中...';
   await savePlayers();
   prog.style.display = 'none';
@@ -629,12 +708,7 @@ async function importCSV() {
   for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(',').map(c => c.trim());
     if (!cols[0]) continue;
-    players.push({
-      id: genId(), name: cols[0], game: cols[1]||null,
-      xHandle: cols[2]||'', xFollowers: null,
-      ytChannel: cols[3]||'', ytSubscribers: null, ytViews: null, ytVideos: null,
-      twitchName: cols[4]||'', twitchFollowers: null, twitchViews: null, lastUpdated: null
-    });
+    players.push({ id: genId(), name: cols[0], game: cols[1]||null, xHandle: cols[2]||'', xFollowers: null, ytChannel: cols[3]||'', ytSubscribers: null, ytViews: null, ytVideos: null, twitchName: cols[4]||'', twitchFollowers: null, lastUpdated: null });
     added++;
   }
   closeModal('importModal');
@@ -646,12 +720,8 @@ async function importCSV() {
 }
 
 function exportCSV() {
-  const header = '選手名,ゲームタイトル,X_ユーザー名,X_フォロワー,YouTube_チャンネルID,YT_登録者数,YT_再生数,YT_動画数,Twitch_ユーザー名,Twitch_フォロワー,Twitch_総視聴数,最終更新';
-  const rows = players.map(p => [
-    p.name, p.game||'', p.xHandle||'', p.xFollowers||'',
-    p.ytChannel||'', p.ytSubscribers||'', p.ytViews||'', p.ytVideos||'',
-    p.twitchName||'', p.twitchFollowers||'', p.twitchViews||'', p.lastUpdated||''
-  ].join(','));
+  const header = '選手名,ゲームタイトル,X_ユーザー名,X_フォロワー,YouTube_チャンネルID,YT_登録者数,YT_再生数,YT_動画数,Twitch_ユーザー名,Twitch_フォロワー,最終更新';
+  const rows = players.map(p => [p.name, p.game||'', p.xHandle||'', p.xFollowers||'', p.ytChannel||'', p.ytSubscribers||'', p.ytViews||'', p.ytVideos||'', p.twitchName||'', p.twitchFollowers||'', p.lastUpdated||''].join(','));
   const csv = [header, ...rows].join('\n');
   const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
@@ -662,13 +732,10 @@ function exportCSV() {
 
 // ─── Modal & Loading ──────────────────────────────────────────
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
-});
+document.querySelectorAll('.modal-overlay').forEach(el => { el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); }); });
 function showLoading(msg) { document.getElementById('loadingMsg').textContent = msg||'処理中...'; document.getElementById('loadingOverlay').classList.add('show'); }
 function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
 
-// ─── Init ─────────────────────────────────────────────────────
 (async () => {
   showLoading('データを読み込み中...');
   await loadPlayers();
