@@ -1,83 +1,680 @@
-const SHEET_NAME = 'Players';
-const HEADERS = [
-  'id', 'name', 'game',
-  'xHandle', 'xFollowers',
-  'ytChannel', 'ytSubscribers', 'ytViews', 'ytVideos',
-  'twitchName', 'twitchFollowers', 'twitchViews',
-  'lastUpdated'
-];
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選手SNS管理ダッシュボード</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f6fa; color: #222; font-size: 14px; }
 
-function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(HEADERS);
-    sheet.setFrozenRows(1);
-    sheet.getRange(1, 1, 1, HEADERS.length)
-      .setBackground('#1a1a2e')
-      .setFontColor('#ffffff')
-      .setFontWeight('bold');
-  }
-  return sheet;
+  header { background: #1a1a2e; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  header h1 { font-size: 18px; font-weight: 700; }
+  .header-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: #4f8ef7; color: #fff; }
+  .btn-success { background: #27ae60; color: #fff; }
+  .btn-danger { background: #e74c3c; color: #fff; }
+  .btn-secondary { background: #6c757d; color: #fff; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-outline { background: transparent; border: 1.5px solid currentColor; }
+  .btn-outline-white { background: transparent; border: 1.5px solid #fff; color: #fff; }
+
+  .container { padding: 20px 24px; }
+
+  .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-card { background: #fff; border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 130px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .stat-card .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .toolbar input[type=text] { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; width: 200px; }
+  .toolbar input[type=text]:focus { outline: none; border-color: #4f8ef7; }
+  .toolbar select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; }
+
+  .table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 16px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { background: #f0f2f8; color: #555; font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 10px 12px; text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { background: #e4e8f4; }
+  tbody tr { border-bottom: 1px solid #f0f2f8; transition: background 0.1s; }
+  tbody tr:hover { background: #f7f9ff; }
+  tbody td { padding: 10px 12px; vertical-align: middle; white-space: nowrap; }
+  .num { font-weight: 600; color: #1a1a2e; }
+  .na { color: #bbb; font-style: italic; }
+  .tag-x { color: #000; }
+  .tag-yt { color: #ff0000; }
+  .tag-tw { color: #9146ff; }
+
+  .game-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #e8f0fe; color: #3b5bdb; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 12px; padding: 28px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+  .modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 18px; color: #1a1a2e; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
+  .form-group input, .form-group select { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #4f8ef7; }
+  .form-section { background: #f8f9fa; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .form-section-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-section-title.tag-x { color: #333; }
+  .form-section-title.tag-yt { color: #cc0000; }
+  .form-section-title.tag-tw { color: #9146ff; }
+  .form-section-title.blue { color: #4f8ef7; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .note { background: #e8f4fd; border-left: 3px solid #4f8ef7; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 12px; color: #555; margin-bottom: 12px; line-height: 1.6; }
+
+  .sync-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: #fff; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 12px; }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sync-dot.green { background: #27ae60; }
+  .sync-dot.orange { background: #f39c12; }
+  .sync-dot.gray { background: #aaa; }
+  .sync-dot.pulse { animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .progress-wrap { background: #f0f2f8; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: none; }
+  .progress-label { font-size: 12px; color: #555; margin-bottom: 6px; }
+  .progress-bar-bg { background: #ddd; border-radius: 10px; height: 6px; overflow: hidden; }
+  .progress-bar { background: #4f8ef7; height: 100%; width: 0; transition: width 0.3s; border-radius: 10px; }
+
+  .csv-area { width: 100%; height: 110px; font-size: 11px; font-family: monospace; border: 1.5px solid #ddd; border-radius: 6px; padding: 8px; resize: vertical; }
+  .last-updated { font-size: 11px; color: #aaa; }
+
+  #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 2000; align-items: center; justify-content: center; flex-direction: column; gap: 12px; font-size: 15px; color: #555; }
+  #loadingOverlay.show { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid #ddd; border-top-color: #4f8ef7; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #emptyState { text-align: center; padding: 40px; color: #aaa; display: none; }
+  .sort-indicator { font-size: 10px; margin-left: 4px; }
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <span id="loadingMsg">データを読み込み中...</span>
+</div>
+
+<header>
+  <h1>⚡ 選手SNS管理ダッシュボード</h1>
+  <div class="header-right">
+    <span id="lastFetchMsg" style="font-size:12px;color:#aaa;">—</span>
+    <button class="btn btn-outline-white" onclick="openSettings()">⚙ 設定</button>
+    <button class="btn btn-success" id="fetchBtn" onclick="fetchAllData()">🔄 SNSデータ更新</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="sync-bar">
+    <div class="sync-dot gray" id="syncDot"></div>
+    <span id="syncLabel">設定画面でApps Script URLを入力するとデータが共有されます</span>
+    <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="syncNow()">↺ 同期</button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card"><div class="label">登録選手数</div><div class="value" id="statPlayers">0</div></div>
+    <div class="stat-card"><div class="label"><span class="tag-yt">▶</span> 総登録者数</div><div class="value" id="statYTSubs">—</div></div>
+    <div class="stat-card"><div class="label"><span class="tag-yt">▶</span> 総再生数</div><div class="value" id="statYTViews">—</div></div>
+    <div class="stat-card"><div class="label"><span class="tag-tw">◆</span> 総フォロワー</div><div class="value" id="statTwFollow">—</div></div>
+    <div class="stat-card"><div class="label"><span class="tag-tw">◆</span> 総視聴数</div><div class="value" id="statTwViews">—</div></div>
+    <div class="stat-card"><div class="label"><span class="tag-x">𝕏</span> 総フォロワー</div><div class="value" id="statXFollow">—</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="🔍 選手名・アカウントで検索..." oninput="renderTable()">
+    <select id="gameFilter" onchange="renderTable()">
+      <option value="">🎮 全ゲーム</option>
+    </select>
+    <button class="btn btn-primary" onclick="openAddPlayer()">＋ 選手を追加</button>
+    <button class="btn btn-secondary" onclick="openImport()">📥 CSVインポート</button>
+    <button class="btn btn-outline btn-secondary" onclick="exportCSV()">📤 CSVエクスポート</button>
+  </div>
+
+  <div class="progress-wrap" id="fetchProgress">
+    <div class="progress-label" id="fetchLabel">取得中...</div>
+    <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th onclick="sortBy('name')"># 選手名 <span class="sort-indicator" id="sort-name"></span></th>
+          <th onclick="sortBy('game')">🎮 ゲーム <span class="sort-indicator" id="sort-game"></span></th>
+          <th onclick="sortBy('xFollowers')"><span class="tag-x">𝕏</span> フォロワー <span class="sort-indicator" id="sort-xFollowers"></span></th>
+          <th onclick="sortBy('ytSubscribers')"><span class="tag-yt">▶</span> 登録者数 <span class="sort-indicator" id="sort-ytSubscribers"></span></th>
+          <th onclick="sortBy('ytViews')"><span class="tag-yt">▶</span> 総再生数 <span class="sort-indicator" id="sort-ytViews"></span></th>
+          <th onclick="sortBy('ytVideos')"><span class="tag-yt">▶</span> 動画数 <span class="sort-indicator" id="sort-ytVideos"></span></th>
+          <th onclick="sortBy('twitchFollowers')"><span class="tag-tw">◆</span> フォロワー <span class="sort-indicator" id="sort-twitchFollowers"></span></th>
+          <th onclick="sortBy('twitchViews')"><span class="tag-tw">◆</span> 総視聴数 <span class="sort-indicator" id="sort-twitchViews"></span></th>
+          <th>最終更新</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div id="emptyState">選手が登録されていません。「＋ 選手を追加」から始めましょう。</div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h2>⚙ 設定</h2>
+    <div class="form-section">
+      <div class="form-section-title blue">🔗 共有設定（Google Apps Script）</div>
+      <div class="note">Apps Script URLを設定するとチーム全員が同じデータを共有できます。</div>
+      <div class="form-group">
+        <label>Apps Script デプロイURL</label>
+        <input type="text" id="appsScriptUrl" placeholder="https://script.google.com/macros/s/...">
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title tag-yt">▶ YouTube Data API v3</div>
+      <div class="form-group">
+        <label>APIキー</label>
+        <input type="text" id="ytApiKey" placeholder="AIza...">
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title tag-tw">◆ Twitch API</div>
+      <div class="form-group">
+        <label>Client ID</label>
+        <input type="text" id="twitchClientId">
+      </div>
+      <div class="form-group">
+        <label>Client Secret</label>
+        <input type="password" id="twitchClientSecret">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('settingsModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveSettings()">保存して同期</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <h2 id="playerModalTitle">選手を追加</h2>
+    <input type="hidden" id="editPlayerId">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>選手名 *</label>
+        <input type="text" id="pName" placeholder="例: 山田 太郎">
+      </div>
+      <div class="form-group">
+        <label>ゲームタイトル</label>
+        <input type="text" id="pGame" placeholder="例: Valorant" list="gameList">
+        <datalist id="gameList"></datalist>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title tag-x">𝕏 X（手動入力）</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>ユーザー名（@なし）</label>
+          <input type="text" id="pXHandle" placeholder="yamada_taro">
+        </div>
+        <div class="form-group">
+          <label>フォロワー数</label>
+          <input type="number" id="pXFollowers" placeholder="12000" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title tag-yt">▶ YouTube</div>
+      <div class="form-group">
+        <label>チャンネルID（UCから始まる文字列）</label>
+        <input type="text" id="pYTChannel" placeholder="UCxxxxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div class="note" style="font-size:11px;">
+        URLが youtube.com/@名前 の場合: チャンネルページ右クリック→「ページのソースを表示」→ Ctrl+F で "channelId" を検索
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title tag-tw">◆ Twitch</div>
+      <div class="form-group">
+        <label>Twitchユーザー名</label>
+        <input type="text" id="pTwitchName" placeholder="yamada_taro">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('playerModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="savePlayer()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2>📥 CSVインポート</h2>
+    <div class="note">
+      1行目はヘッダー行です。以下の形式で貼り付けてください：<br>
+      <code>選手名,ゲームタイトル,X_ユーザー名,YouTubeチャンネルID,Twitchユーザー名</code>
+    </div>
+    <div class="form-group">
+      <textarea class="csv-area" id="csvInput" placeholder="選手名,ゲームタイトル,X_ユーザー名,YouTubeチャンネルID,Twitchユーザー名
+山田太郎,Valorant,yamada_taro,UCxxxxxxxxx,yamada_taro
+鈴木花子,LoL,suzuki_hanako,UCyyyyyyyyy,"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('importModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="importCSV()">インポート</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────
+let players = [];
+let settings = JSON.parse(localStorage.getItem('sns_settings') || '{}');
+let twitchToken = null;
+let sortKey = null;
+let sortAsc = true;
+
+// ─── Formatting ───────────────────────────────────────────────
+function fmt(n) {
+  if (n === null || n === undefined || n === '' || n === 'null') return '<span class="na">—</span>';
+  const num = parseInt(n);
+  if (isNaN(num)) return '<span class="na">—</span>';
+  if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
+  if (num >= 10000)   return (num/10000).toFixed(1) + '万';
+  if (num >= 1000)    return (num/1000).toFixed(1) + 'K';
+  return num.toLocaleString();
 }
 
-function doGet(e) {
+function fmtDate(iso) {
+  if (!iso || iso === 'null') return '<span class="na">—</span>';
+  const d = new Date(iso);
+  if (isNaN(d)) return '<span class="na">—</span>';
+  return `<span class="last-updated">${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}</span>`;
+}
+
+function numVal(n) { return (!n || n === 'null') ? -1 : (parseInt(n) || -1); }
+
+// ─── Sync ─────────────────────────────────────────────────────
+function setSyncStatus(status, label) {
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot ' + (status === 'ok' ? 'green' : status === 'syncing' ? 'orange pulse' : 'gray');
+  document.getElementById('syncLabel').textContent = label;
+}
+
+async function loadPlayers() {
+  const url = settings.appsScriptUrl;
+  if (!url) {
+    players = JSON.parse(localStorage.getItem('sns_players_local') || '[]');
+    setSyncStatus('gray', 'ローカル保存モード（Apps Script URL未設定）');
+    return;
+  }
+  setSyncStatus('syncing', 'データを読み込み中...');
   try {
-    const sheet = getSheet();
-    const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return respond([]);
-    const players = data.slice(1)
-      .map(row => {
-        const obj = {};
-        HEADERS.forEach((h, i) => {
-          const val = row[i];
-          obj[h] = (val === '' || val === null || val === undefined) ? null : String(val);
-        });
-        return obj;
-      })
-      .filter(p => p.id && p.id !== 'null');
-    return respond(players);
-  } catch (err) {
-    return respond({ error: err.toString() });
+    const res = await fetch(url, { cache: 'no-cache' });
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      players = data;
+      setSyncStatus('ok', `Google Sheetsと同期済み（${players.length}名）`);
+    } else { throw new Error(data.error || '不明なエラー'); }
+  } catch (e) {
+    players = JSON.parse(localStorage.getItem('sns_players_local') || '[]');
+    setSyncStatus('orange', 'Sheets接続エラー。ローカルデータを表示中。');
   }
 }
 
-function doPost(e) {
+async function savePlayers() {
+  localStorage.setItem('sns_players_local', JSON.stringify(players));
+  const url = settings.appsScriptUrl;
+  if (!url) return;
+  setSyncStatus('syncing', '保存中...');
   try {
-    let dataStr = null;
-    if (e.parameter && e.parameter.data) {
-      dataStr = e.parameter.data;
-    } else if (e.postData && e.postData.contents) {
-      const pairs = e.postData.contents.split('&');
-      for (const pair of pairs) {
-        const idx = pair.indexOf('=');
-        if (idx > -1) {
-          const key = decodeURIComponent(pair.substring(0, idx));
-          const val = decodeURIComponent(pair.substring(idx + 1).replace(/\+/g, ' '));
-          if (key === 'data') { dataStr = val; break; }
-        }
-      }
-    }
-    if (!dataStr) return respond({ error: 'データが見つかりません' });
-    const players = JSON.parse(dataStr);
-    const sheet = getSheet();
-    const lastRow = sheet.getLastRow();
-    if (lastRow > 1) sheet.deleteRows(2, lastRow - 1);
-    if (players.length > 0) {
-      const rows = players.map(p =>
-        HEADERS.map(h => (p[h] !== null && p[h] !== undefined) ? p[h] : '')
-      );
-      sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
-    }
-    return respond({ success: true, count: players.length });
-  } catch (err) {
-    return respond({ error: err.toString() });
+    const body = new URLSearchParams();
+    body.append('data', JSON.stringify(players));
+    await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: body.toString() });
+    await new Promise(r => setTimeout(r, 1500));
+    await loadPlayers();
+    renderTable();
+  } catch (e) {
+    setSyncStatus('orange', '保存エラー（ローカルには保存済み）');
   }
 }
 
-function respond(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
+async function syncNow() {
+  showLoading('同期中...');
+  await loadPlayers();
+  renderTable();
+  hideLoading();
 }
+
+// ─── Game filter ──────────────────────────────────────────────
+function updateGameFilter() {
+  const games = [...new Set(players.map(p => p.game).filter(g => g && g !== 'null'))].sort();
+  const sel = document.getElementById('gameFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">🎮 全ゲーム</option>' + games.map(g => `<option value="${g}"${g===cur?' selected':''}>${g}</option>`).join('');
+
+  const dl = document.getElementById('gameList');
+  dl.innerHTML = games.map(g => `<option value="${g}">`).join('');
+}
+
+// ─── Table Render ─────────────────────────────────────────────
+function renderTable() {
+  updateGameFilter();
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const gf = document.getElementById('gameFilter').value;
+
+  let filtered = players.filter(p => {
+    const matchQ = (p.name||'').toLowerCase().includes(q) || (p.xHandle||'').toLowerCase().includes(q) || (p.twitchName||'').toLowerCase().includes(q);
+    const matchG = !gf || p.game === gf;
+    return matchQ && matchG;
+  });
+
+  if (sortKey) {
+    filtered.sort((a, b) => {
+      const av = sortKey === 'name' || sortKey === 'game' ? (a[sortKey]||'') : numVal(a[sortKey]);
+      const bv = sortKey === 'name' || sortKey === 'game' ? (b[sortKey]||'') : numVal(b[sortKey]);
+      if (av < bv) return sortAsc ? -1 : 1;
+      if (av > bv) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map((p, i) => `
+      <tr>
+        <td><strong>${i+1}. ${p.name}</strong></td>
+        <td>${p.game && p.game !== 'null' ? `<span class="game-badge">${p.game}</span>` : '<span class="na">—</span>'}</td>
+        <td class="num">${fmt(p.xFollowers)}</td>
+        <td class="num">${fmt(p.ytSubscribers)}</td>
+        <td class="num">${fmt(p.ytViews)}</td>
+        <td class="num">${fmt(p.ytVideos)}</td>
+        <td class="num">${fmt(p.twitchFollowers)}</td>
+        <td class="num">${fmt(p.twitchViews)}</td>
+        <td>${fmtDate(p.lastUpdated)}</td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="openEditPlayer('${p.id}')">編集</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePlayer('${p.id}')">削除</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  updateStats(filtered);
+}
+
+function sortBy(key) {
+  if (sortKey === key) { sortAsc = !sortAsc; }
+  else { sortKey = key; sortAsc = (key === 'name' || key === 'game'); }
+  document.querySelectorAll('.sort-indicator').forEach(el => el.textContent = '');
+  const el = document.getElementById('sort-' + key);
+  if (el) el.textContent = sortAsc ? '▲' : '▼';
+  renderTable();
+}
+
+function updateStats(list) {
+  document.getElementById('statPlayers').textContent = players.length;
+  const ytSubs  = list.reduce((s,p)=>s+(parseInt(p.ytSubscribers)||0),0);
+  const ytViews = list.reduce((s,p)=>s+(parseInt(p.ytViews)||0),0);
+  const twF     = list.reduce((s,p)=>s+(parseInt(p.twitchFollowers)||0),0);
+  const twV     = list.reduce((s,p)=>s+(parseInt(p.twitchViews)||0),0);
+  const xF      = list.reduce((s,p)=>s+(parseInt(p.xFollowers)||0),0);
+  document.getElementById('statYTSubs').textContent   = ytSubs  ? fmt(ytSubs)  : '—';
+  document.getElementById('statYTViews').textContent  = ytViews ? fmt(ytViews) : '—';
+  document.getElementById('statTwFollow').textContent = twF     ? fmt(twF)     : '—';
+  document.getElementById('statTwViews').textContent  = twV     ? fmt(twV)     : '—';
+  document.getElementById('statXFollow').textContent  = xF      ? fmt(xF)      : '—';
+}
+
+// ─── Settings ─────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('appsScriptUrl').value      = settings.appsScriptUrl || '';
+  document.getElementById('ytApiKey').value           = settings.ytApiKey || '';
+  document.getElementById('twitchClientId').value     = settings.twitchClientId || '';
+  document.getElementById('twitchClientSecret').value = settings.twitchClientSecret || '';
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+async function saveSettings() {
+  settings.appsScriptUrl      = document.getElementById('appsScriptUrl').value.trim();
+  settings.ytApiKey           = document.getElementById('ytApiKey').value.trim();
+  settings.twitchClientId     = document.getElementById('twitchClientId').value.trim();
+  settings.twitchClientSecret = document.getElementById('twitchClientSecret').value.trim();
+  localStorage.setItem('sns_settings', JSON.stringify(settings));
+  twitchToken = null;
+  closeModal('settingsModal');
+  if (settings.appsScriptUrl) {
+    showLoading('Google Sheetsに接続中...');
+    await loadPlayers();
+    renderTable();
+    hideLoading();
+  }
+}
+
+// ─── Player CRUD ──────────────────────────────────────────────
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,6); }
+
+function openAddPlayer() {
+  document.getElementById('playerModalTitle').textContent = '選手を追加';
+  document.getElementById('editPlayerId').value = '';
+  ['pName','pGame','pXHandle','pYTChannel','pTwitchName'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pXFollowers').value = '';
+  document.getElementById('playerModal').classList.add('open');
+}
+
+function openEditPlayer(id) {
+  const p = players.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('playerModalTitle').textContent = '選手を編集';
+  document.getElementById('editPlayerId').value = id;
+  document.getElementById('pName').value       = p.name || '';
+  document.getElementById('pGame').value       = (p.game && p.game !== 'null') ? p.game : '';
+  document.getElementById('pXHandle').value    = p.xHandle || '';
+  document.getElementById('pXFollowers').value = p.xFollowers || '';
+  document.getElementById('pYTChannel').value  = p.ytChannel || '';
+  document.getElementById('pTwitchName').value = p.twitchName || '';
+  document.getElementById('playerModal').classList.add('open');
+}
+
+async function savePlayer() {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { alert('選手名は必須です。'); return; }
+
+  const editId = document.getElementById('editPlayerId').value;
+  const data = {
+    name,
+    game:       document.getElementById('pGame').value.trim() || null,
+    xHandle:    document.getElementById('pXHandle').value.trim(),
+    xFollowers: document.getElementById('pXFollowers').value || null,
+    ytChannel:  document.getElementById('pYTChannel').value.trim(),
+    twitchName: document.getElementById('pTwitchName').value.trim(),
+  };
+
+  if (editId) {
+    const idx = players.findIndex(p => p.id === editId);
+    if (idx >= 0) players[idx] = { ...players[idx], ...data };
+  } else {
+    players.push({
+      id: genId(), ...data,
+      ytSubscribers: null, ytViews: null, ytVideos: null,
+      twitchFollowers: null, twitchViews: null, lastUpdated: null
+    });
+  }
+
+  closeModal('playerModal');
+  renderTable();
+  showLoading('保存中...');
+  await savePlayers();
+  hideLoading();
+}
+
+async function deletePlayer(id) {
+  if (!confirm('この選手を削除しますか？')) return;
+  players = players.filter(p => p.id !== id);
+  renderTable();
+  showLoading('保存中...');
+  await savePlayers();
+  hideLoading();
+}
+
+// ─── SNS Data Fetch ───────────────────────────────────────────
+async function getTwitchToken() {
+  if (twitchToken) return twitchToken;
+  if (!settings.twitchClientId || !settings.twitchClientSecret) return null;
+  try {
+    const res = await fetch(
+      `https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(settings.twitchClientId)}&client_secret=${encodeURIComponent(settings.twitchClientSecret)}&grant_type=client_credentials`,
+      { method: 'POST' }
+    );
+    const data = await res.json();
+    twitchToken = data.access_token;
+    return twitchToken;
+  } catch(e) { return null; }
+}
+
+async function fetchYouTube(channelId) {
+  if (!settings.ytApiKey || !channelId || channelId === 'null') return null;
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${encodeURIComponent(channelId)}&key=${encodeURIComponent(settings.ytApiKey)}`);
+    const data = await res.json();
+    if (!data.items || !data.items.length) return null;
+    const s = data.items[0].statistics;
+    return { ytSubscribers: s.subscriberCount, ytViews: s.viewCount, ytVideos: s.videoCount };
+  } catch(e) { return null; }
+}
+
+async function fetchTwitch(username) {
+  if (!username || username === 'null') return null;
+  const token = await getTwitchToken();
+  if (!token) return null;
+  try {
+    const userRes = await fetch(`https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`, {
+      headers: { 'Client-Id': settings.twitchClientId, 'Authorization': `Bearer ${token}` }
+    });
+    const userData = await userRes.json();
+    if (!userData.data || !userData.data.length) return null;
+    const user = userData.data[0];
+    const userId = user.id;
+    const twitchViews = user.view_count ?? null; // 総視聴数
+
+    const followRes = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${userId}`, {
+      headers: { 'Client-Id': settings.twitchClientId, 'Authorization': `Bearer ${token}` }
+    });
+    const followData = await followRes.json();
+    return { twitchFollowers: followData.total ?? null, twitchViews };
+  } catch(e) { return null; }
+}
+
+async function fetchAllData() {
+  if (!settings.ytApiKey && !settings.twitchClientId) {
+    if (confirm('APIキーが設定されていません。設定画面を開きますか？')) openSettings();
+    return;
+  }
+  const prog = document.getElementById('fetchProgress');
+  const label = document.getElementById('fetchLabel');
+  const bar   = document.getElementById('progressBar');
+  prog.style.display = 'block';
+  document.getElementById('fetchBtn').disabled = true;
+
+  const total = players.length;
+  let done = 0;
+
+  for (const p of players) {
+    label.textContent = `取得中: ${p.name}（${done+1} / ${total}）`;
+    bar.style.width = ((done/total)*100) + '%';
+    const [yt, tw] = await Promise.all([fetchYouTube(p.ytChannel), fetchTwitch(p.twitchName)]);
+    if (yt) Object.assign(p, yt);
+    if (tw) Object.assign(p, tw);
+    p.lastUpdated = new Date().toISOString();
+    done++;
+    bar.style.width = ((done/total)*100) + '%';
+  }
+
+  label.textContent = '保存中...';
+  await savePlayers();
+  prog.style.display = 'none';
+  document.getElementById('fetchBtn').disabled = false;
+  const now = new Date();
+  document.getElementById('lastFetchMsg').textContent = `最終更新: ${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  renderTable();
+}
+
+// ─── CSV ──────────────────────────────────────────────────────
+function openImport() { document.getElementById('csvInput').value = ''; document.getElementById('importModal').classList.add('open'); }
+
+async function importCSV() {
+  const lines = document.getElementById('csvInput').value.trim().split('\n');
+  if (lines.length < 2) { alert('データが不足しています。'); return; }
+  let added = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim());
+    if (!cols[0]) continue;
+    players.push({
+      id: genId(), name: cols[0], game: cols[1]||null,
+      xHandle: cols[2]||'', xFollowers: null,
+      ytChannel: cols[3]||'', ytSubscribers: null, ytViews: null, ytVideos: null,
+      twitchName: cols[4]||'', twitchFollowers: null, twitchViews: null, lastUpdated: null
+    });
+    added++;
+  }
+  closeModal('importModal');
+  renderTable();
+  showLoading('保存中...');
+  await savePlayers();
+  hideLoading();
+  alert(`${added}名の選手をインポートしました。`);
+}
+
+function exportCSV() {
+  const header = '選手名,ゲームタイトル,X_ユーザー名,X_フォロワー,YouTube_チャンネルID,YT_登録者数,YT_再生数,YT_動画数,Twitch_ユーザー名,Twitch_フォロワー,Twitch_総視聴数,最終更新';
+  const rows = players.map(p => [
+    p.name, p.game||'', p.xHandle||'', p.xFollowers||'',
+    p.ytChannel||'', p.ytSubscribers||'', p.ytViews||'', p.ytVideos||'',
+    p.twitchName||'', p.twitchFollowers||'', p.twitchViews||'', p.lastUpdated||''
+  ].join(','));
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sns_data_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ─── Modal & Loading ──────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+function showLoading(msg) { document.getElementById('loadingMsg').textContent = msg||'処理中...'; document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+
+// ─── Init ─────────────────────────────────────────────────────
+(async () => {
+  showLoading('データを読み込み中...');
+  await loadPlayers();
+  renderTable();
+  hideLoading();
+})();
+</script>
+</body>
+</html>
